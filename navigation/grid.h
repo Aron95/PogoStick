@@ -6,10 +6,6 @@
 
 
 
-typedef struct {
-	int xPosiiton;
-	int yPosition;
-} Coordinate;
 
 typedef struct {
 	int xPos;
@@ -36,7 +32,7 @@ typedef struct {
 
 
 
-Cell* GetCell(Grid* grid, Coordinate* coordinate);
+Cell* GetCell(Grid* grid, Vector2* coordinate);
 Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, bool display);
 void DrawNavigationGrid(Grid* grid);
 void LightUpCell(Cell* cell);

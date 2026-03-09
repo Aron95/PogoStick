@@ -1,5 +1,6 @@
 #include "grid.h"
 #include "gameObject/gameObject.h"
+#include "globals.h"
 #include "raylib.h"
 #define RAYMATH_IMPLEMENTATION
 #include "raymath.h"
@@ -76,8 +77,6 @@ void DrawNavigationGrid(Grid* grid){
 	}
 }
 
-
-
 int FindNearesCellToPosition(Grid* grid, GameObject* gameObject) {
 	Vector2 position = gameObject -> animation ->position;
 	position.x += 50;
@@ -104,8 +103,8 @@ int FindNearesCellToPosition(Grid* grid, GameObject* gameObject) {
 }
 
 
-Cell* GetCell(Grid* grid, Coordinate* coordinate){
-	size_t index = coordinate -> xPosiiton + (grid->width / grid->cellWidth) * coordinate ->yPosition; //index = x + NX *y
+Cell* GetCell(Grid* grid, Vector2* coordinate){
+	size_t index = coordinate -> x + (grid->width / grid->cellWidth) * coordinate ->y; //index = x + NX *y
 	return grid -> cells+index;
 }
 
@@ -113,6 +112,29 @@ Cell* GetCell(Grid* grid, Coordinate* coordinate){
 void LightUpCell(Cell* cell){
 	//printf("draw grid cell pos x %d, cell pos y  %d \n", cell ->xPos,  cell -> yPos);
 	DrawRectangle(cell ->xPos, cell ->yPos, cell ->height, cell ->width, RED);
+}
+
+
+Path* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject){
+	Path* path = malloc(sizeof(Path));
+	GameObject* player = playerGlobalpt;
+	int sourceCellIndex = FindNearesCellToPosition(grid,sourceGameObject);
+	int sinkCellIndex = FindNearesCellToPosition(grid,player);
+	
+
+
+
+	Cell sourceCell = grid -> cells[sourceCellIndex];
+	Cell sinkCell = grid -> cells[sinkCellIndex];
+
+
+
+	
+	
+	
+
+
+	return path;
 }
 
 
