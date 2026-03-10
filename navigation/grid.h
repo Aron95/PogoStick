@@ -4,12 +4,8 @@
 
 
 
-
-
-
 typedef struct {
-	int xPos;
-	int yPos;
+	Vector2 position;
 	int width;
 	int height;
 	bool walkable;
@@ -28,6 +24,8 @@ typedef struct {
 typedef struct {
 	Cell* cells;
 	int  cellsLength;
+	int* alreadyCalculatedCellIndexs;
+	int alreadyCalculatedCellIndexsLength;
 } Path;
 
 

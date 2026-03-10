@@ -30,7 +30,7 @@ Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, b
 		currentPositionX = 0; // Reset X position for each new row
 		for (int x = 0; x < cellCountXAxe; x++) {
 			cellArry[arrayIndex] = (Cell){
-				currentPositionX, currentPositionY, cellWidth, cellHeigth
+				.position = { (float)currentPositionX, (float)currentPositionY }, .width = cellWidth, .height = cellHeigth
 			};
 			currentPositionX += cellWidth;
 			arrayIndex++;
@@ -88,8 +88,8 @@ int FindNearesCellToPosition(Grid* grid, GameObject* gameObject) {
     for (int i = 0; i < grid->cellsLenght; i++) {
         Cell cell = grid->cells[i];
         Vector2 cellCenter = {
-            cell.xPos + cell.width / 2.0f,
-            cell.yPos + cell.height / 2.0f
+            cell.position.x + cell.width / 2.0f,
+            cell.position.y + cell.height / 2.0f
         };
 
         float distance = Vector2Distance(position, cellCenter);
@@ -110,8 +110,8 @@ Cell* GetCell(Grid* grid, Vector2* coordinate){
 
 
 void LightUpCell(Cell* cell){
-	//printf("draw grid cell pos x %d, cell pos y  %d \n", cell ->xPos,  cell -> yPos);
-	DrawRectangle(cell ->xPos, cell ->yPos, cell ->height, cell ->width, RED);
+	//printf("draw grid cell pos x %d, cell pos y  %d \n", cell ->position.x,  cell -> position.y);
+	DrawRectangle(cell ->position.x, cell ->position.y, cell ->height, cell ->width, RED);
 }
 
 
