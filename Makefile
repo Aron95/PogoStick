@@ -31,7 +31,7 @@ else
 endif
 
 # Source files
-SOURCES = main.c animations.c input.c collision/collision.c gameObject/gameObject.c gameObject/gameObjectDefinitions.c navigation/grid.c movement/movement.c
+SOURCES = main.c animation/animations.c input/input.c collision/collision.c gameObject/gameObject.c gameObject/gameObjectDefinitions.c navigation/grid.c movement/movement.c
 # Object files
 OBJECTS = $(SOURCES:.c=.o)
 

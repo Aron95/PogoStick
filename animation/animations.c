@@ -1,6 +1,6 @@
 #include "raylib.h"
 #include "stdio.h"
-#include "animations.h"
+#include "animation/animations.h"
 #include <time.h>
 
 
