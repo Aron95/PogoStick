@@ -1,15 +1,19 @@
 #include "grid.h"
+#include "enums/enum.h"
 #include "gameObject/gameObject.h"
 #include "globals.h"
 #include "raylib.h"
+#include <cstddef>
+#include <iterator>
 #define RAYMATH_IMPLEMENTATION
 #include "raymath.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+/*TODO: Create Pathfinding over calculationg every weight for every cell on the map based on the player position*/
 
-
+/*Creats an cartesian coord sytem saved in Column Major Order array*/
 Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, bool display){
 	Grid* grid = malloc(sizeof(Grid));
 
@@ -30,7 +34,7 @@ Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, b
 		currentPositionX = 0; // Reset X position for each new row
 		for (int x = 0; x < cellCountXAxe; x++) {
 			cellArry[arrayIndex] = (Cell){
-				.position = { (float)currentPositionX, (float)currentPositionY }, .width = cellWidth, .height = cellHeigth
+				{currentPositionX, currentPositionY}, cellWidth, cellHeigth
 			};
 			currentPositionX += cellWidth;
 			arrayIndex++;
@@ -104,14 +108,80 @@ int FindNearesCellToPosition(Grid* grid, GameObject* gameObject) {
 
 
 Cell* GetCell(Grid* grid, Vector2* coordinate){
-	size_t index = coordinate -> x + (grid->width / grid->cellWidth) * coordinate ->y; //index = x + NX *y
+	size_t index = coordinate -> x + (grid->width / grid->cellWidth) * coordinate ->y; //index = x + NX *y Column Major Order
 	return grid -> cells+index;
 }
 
 
 void LightUpCell(Cell* cell){
-	//printf("draw grid cell pos x %d, cell pos y  %d \n", cell ->position.x,  cell -> position.y);
+	//printf("draw grid cell pos x %d, cell pos y  %d \n", cell ->xPos,  cell -> yPos);
 	DrawRectangle(cell ->position.x, cell ->position.y, cell ->height, cell ->width, RED);
+}
+
+float CalculateManhattanDistance(Vector2 start, Vector2 end){
+	return fabs(start.x - end.x) + fabs(start.y - end.y);
+}
+
+/*uses a* algorithm to calculate path to object given Vector2, works with manhattan distance and only dinstance lower 200*/
+Path* AStarAlgorithm(Grid* grid, int startIndex, int endIndex, int relativPositions [4]){
+	Cell endCell = grid->cells[endIndex];
+	Path* path = malloc(sizeof(Path));
+
+	PathNode proceededCells [100];
+	int currentIndex = startIndex;
+	int currentGValue=100;
+	int currentFValue=0;
+	int currentHValue=100;
+	proceededCells[0] = (PathNode){
+		startIndex,
+		currentGValue,
+		currentFValue,
+		currentHValue}; 
+	int finishedCellsLength = 1;
+
+	PathNode* cheapestPathNodes = malloc(sizeof(PathNode)*grid->cellsLenght);
+	int cheapestPathLength = 0;
+
+
+	while(true){
+		if (currentIndex == endIndex) {
+			break;
+		}
+
+		currentGValue++;
+		int tempLowestHValue;
+		int tempLowestCurrentIndex = currentIndex;
+
+		for (int i=0; i<4; i++){ // iterates all relativPositions for caluclating values
+			int currentRelativIndex = relativPositions[i] + currentIndex;
+
+			for(int i =0; i<finishedCellsLength;i++){ // checks if index was already processed if yes, continue to next index.
+				if(currentRelativIndex == proceededCells[i].cellIndex){
+					continue;
+				}
+			}
+
+			currentHValue = CalculateManhattanDistance( // calculates h value
+				grid->cells[currentRelativIndex].position,
+			 	endCell.position);
+
+
+
+			if (tempLowestHValue+currentGValue>currentHValue + currentGValue){ // if checks if temp_h is bigger, if yes sets new tempCurrentIndex and tempLowestHValue to find cheapest path
+				tempLowestCurrentIndex = currentRelativIndex;
+				tempLowestHValue = currentHValue;
+				currentFValue = currentHValue+currentGValue;
+			}
+
+			proceededCells[finishedCellsLength] = (PathNode){startIndex,currentGValue,currentFValue,currentHValue};
+		}
+		cheapestPathNodes[cheapestPathLength] = (PathNode){tempLowestHValue,currentGValue,currentHValue, currentFValue};
+		cheapestPathLength++;
+
+	}
+
+	path = &(Path){cheapestPathNodes,cheapestPathLength};
+	return path;
 }
 
 
@@ -121,20 +191,19 @@ Path* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject){
 	int sourceCellIndex = FindNearesCellToPosition(grid,sourceGameObject);
 	int sinkCellIndex = FindNearesCellToPosition(grid,player);
 	
+	int rowLength = grid ->width / grid ->cellWidth;
+	int relativeTopBottom = grid ->width/grid->cellWidth; // to get in a Column Major Order the Element right in top of cartesian coordination system we ne to move the index 1 full row element count.
 
-
-
-	Cell sourceCell = grid -> cells[sourceCellIndex];
-	Cell sinkCell = grid -> cells[sinkCellIndex];
-
-
-
-	
-	
+	int relativPositions [4] = {1,-1,relativeTopBottom,-relativeTopBottom};
 	
 
-
-	return path;
+	return AStarAlgorithm(grid,sourceCellIndex,sinkCellIndex, relativPositions);
 }
+
+
+
+
+
+
 
 

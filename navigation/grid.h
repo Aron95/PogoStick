@@ -22,13 +22,16 @@ typedef struct {
 } Grid;
 
 typedef struct {
-	Cell* cells;
-	int  cellsLength;
-	int* alreadyCalculatedCellIndexs;
-	int alreadyCalculatedCellIndexsLength;
+	int cellIndex;
+	float g_value;
+	float f_value;
+	float h_value;
+} PathNode;
+
+typedef struct {
+	PathNode* pathNode;
+	int pathNodeLength;	
 } Path;
-
-
 
 Cell* GetCell(Grid* grid, Vector2* coordinate);
 Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, bool display);
