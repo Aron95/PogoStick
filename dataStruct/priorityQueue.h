@@ -1,3 +1,6 @@
+#include <stddef.h>
+
+
 typedef struct {
 	int *buffer;
 	int currendNodeCount;
@@ -5,6 +8,6 @@ typedef struct {
 } HeapArena;
 
 
-
-void InsertHeapArena(HeapArena* heap, int insertValue);
+HeapArena* CreateHeapArena(size_t arenaSize);
+int InsertHeapArena(HeapArena* heap, int insertValue);
 int PopHeapArena(HeapArena* heap);

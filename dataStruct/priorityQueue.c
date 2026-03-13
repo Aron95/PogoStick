@@ -7,9 +7,20 @@
 //TODO: Make it generic to work for every kind of data
 
 /* Creates a Heap Arena based on gridsize*/
-HeapArena* CreateHeapArena(int width, int height){
-	size_t arenaSize = width*height* sizeof(HeapArena);
-	HeapArena* arena = malloc(sizeof(arenaSize));
+HeapArena* CreateHeapArena(size_t arenaSize){
+	HeapArena* arena = (HeapArena*)malloc(sizeof(HeapArena));
+	if (arena == NULL) {
+		printf("Failed to allocate HeapArena\n");
+		return NULL;
+	}
+	arena->buffer = (int*)malloc(sizeof(int) * arenaSize);
+	if (arena->buffer == NULL) {
+		printf("Failed to allocate buffer for HeapArena \n");
+		free(arena); 
+		return NULL;
+	}
+	arena->maxNodes = arenaSize;
+	arena->currendNodeCount = 0;
 	return arena;
 }
 
@@ -26,8 +37,8 @@ int compare_acs(const void *a, const void *b){
 }
 
 /*at the moment minheap because only used for astar algorithm*/
-void InsertHeapArena(HeapArena* heap, int insertValue){
-	if (heap->currendNodeCount >= heap->maxNodes) return; // heap full
+int InsertHeapArena(HeapArena* heap, int insertValue){
+	if (heap->currendNodeCount >= heap->maxNodes) return -1; // heap full
 
 	
 	//enquere value onto the heap
@@ -35,20 +46,29 @@ void InsertHeapArena(HeapArena* heap, int insertValue){
 	heap -> buffer[currentIndex] = insertValue;
 	heap->currendNodeCount ++;
 
+
 	while(currentIndex > 0){
 		int parentIndex = (currentIndex -1)/2;
-		if (compare_acs(&heap ->buffer[parentIndex], &heap ->buffer[currentIndex]))
+
+		//printf("Parent value %d, Parent Index %d \n", heap -> buffer[parentIndex], parentIndex);
+		//printf("Current Value %d, Current Index %d \n", heap -> buffer[currentIndex], currentIndex);
+
+		if (heap ->buffer[parentIndex] > heap ->buffer[currentIndex])
 		{
+			// printf(" swap \n");
+
 			int temp = heap->buffer[parentIndex];
             heap->buffer[parentIndex] = heap->buffer[currentIndex];
             heap->buffer[currentIndex] = temp;
 
             currentIndex = parentIndex;
 		}  else {
+			// printf(" no swap \n");
             // is in right order
             break;
         }
 	}
+	return 1;
 }
 
 
