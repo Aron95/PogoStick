@@ -1,13 +1,14 @@
 #include <stddef.h>
-
+#include "navigation/grid.h"
 
 typedef struct {
-	int *buffer;
+	PathNode *buffer;
 	int currendNodeCount;
 	int maxNodes;
 } HeapArena;
 
 
 HeapArena* CreateHeapArena(size_t arenaSize);
-int InsertHeapArena(HeapArena* heap, int insertValue);
-int PopHeapArena(HeapArena* heap);
+int InsertHeapArena(HeapArena* heap, PathNode insertValue);
+PathNode PopHeapArena(HeapArena* heap); 
+void LogHeap(HeapArena* arena);

@@ -1,10 +1,8 @@
 #include "grid.h"
-#include "enums/enum.h"
 #include "gameObject/gameObject.h"
+#include <dataStruct/priorityQueue.h>
 #include "globals.h"
 #include "raylib.h"
-#include <cstddef>
-#include <iterator>
 #define RAYMATH_IMPLEMENTATION
 #include "raymath.h"
 #include <stddef.h>
@@ -122,66 +120,29 @@ float CalculateManhattanDistance(Vector2 start, Vector2 end){
 	return fabs(start.x - end.x) + fabs(start.y - end.y);
 }
 
+
+
+
+
+
+
 /*uses a* algorithm to calculate path to object given Vector2, works with manhattan distance and only dinstance lower 200*/
-Path* AStarAlgorithm(Grid* grid, int startIndex, int endIndex, int relativPositions [4]){
-	Cell endCell = grid->cells[endIndex];
-	Path* path = malloc(sizeof(Path));
+Path* AStarAlgorithm(Grid* grid, int startIndex, int tragetIndex){
+	HeapArena* openHeap = CreateHeapArena(50);
+	HeapArena* closedHeap = CreateHeapArena(50);
 
-	PathNode proceededCells [100];
-	int currentIndex = startIndex;
-	int currentGValue=100;
-	int currentFValue=0;
-	int currentHValue=100;
-	proceededCells[0] = (PathNode){
-		startIndex,
-		currentGValue,
-		currentFValue,
-		currentHValue}; 
-	int finishedCellsLength = 1;
+	int return_value =InsertHeapArena(openHeap, startIndex);
 
-	PathNode* cheapestPathNodes = malloc(sizeof(PathNode)*grid->cellsLenght);
-	int cheapestPathLength = 0;
-
-
-	while(true){
-		if (currentIndex == endIndex) {
-			break;
-		}
-
-		currentGValue++;
-		int tempLowestHValue;
-		int tempLowestCurrentIndex = currentIndex;
-
-		for (int i=0; i<4; i++){ // iterates all relativPositions for caluclating values
-			int currentRelativIndex = relativPositions[i] + currentIndex;
-
-			for(int i =0; i<finishedCellsLength;i++){ // checks if index was already processed if yes, continue to next index.
-				if(currentRelativIndex == proceededCells[i].cellIndex){
-					continue;
-				}
-			}
-
-			currentHValue = CalculateManhattanDistance( // calculates h value
-				grid->cells[currentRelativIndex].position,
-			 	endCell.position);
-
-
-
-			if (tempLowestHValue+currentGValue>currentHValue + currentGValue){ // if checks if temp_h is bigger, if yes sets new tempCurrentIndex and tempLowestHValue to find cheapest path
-				tempLowestCurrentIndex = currentRelativIndex;
-				tempLowestHValue = currentHValue;
-				currentFValue = currentHValue+currentGValue;
-			}
-
-			proceededCells[finishedCellsLength] = (PathNode){startIndex,currentGValue,currentFValue,currentHValue};
-		}
-		cheapestPathNodes[cheapestPathLength] = (PathNode){tempLowestHValue,currentGValue,currentHValue, currentFValue};
-		cheapestPathLength++;
-
+	if (return_value == -1 ) {
+		printf(" inserting value: %d into heap arena failed\n", startIndex);
+		LogHeap(openHeap);
+		return NULL;
 	}
 
-	path = &(Path){cheapestPathNodes,cheapestPathLength};
-	return path;
+
+
+
+
 }
 
 
@@ -197,7 +158,7 @@ Path* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject){
 	int relativPositions [4] = {1,-1,relativeTopBottom,-relativeTopBottom};
 	
 
-	return AStarAlgorithm(grid,sourceCellIndex,sinkCellIndex, relativPositions);
+	return AStarAlgorithm(grid);
 }
 
 

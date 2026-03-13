@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include "priorityQueue.h"
 
+
+
+void LogHeap(HeapArena* arena){
+	printf("Heap  max nodes %d, Heap current nodes %d",arena ->maxNodes, arena ->currendNodeCount);
+}
+
 //TODO: Make it generic to work for every kind of data
 
 /* Creates a Heap Arena based on gridsize*/
@@ -13,7 +19,7 @@ HeapArena* CreateHeapArena(size_t arenaSize){
 		printf("Failed to allocate HeapArena\n");
 		return NULL;
 	}
-	arena->buffer = (int*)malloc(sizeof(int) * arenaSize);
+	arena->buffer = (PathNode*)malloc(sizeof(PathNode) * arenaSize);
 	if (arena->buffer == NULL) {
 		printf("Failed to allocate buffer for HeapArena \n");
 		free(arena); 
@@ -25,19 +31,8 @@ HeapArena* CreateHeapArena(size_t arenaSize){
 }
 
 
-/*acs compare, if a > b return 1, a < b return -1, equallity returns 0*/
-int compare_acs(const void *a, const void *b){
-	int arg1 = *(const int*)a;
-	int arg2 = *(const int*)b;
-
-
-	if (arg1<arg2) return -1;
-	if (arg1>arg2) return 1;
-	return 0;
-}
-
 /*at the moment minheap because only used for astar algorithm*/
-int InsertHeapArena(HeapArena* heap, int insertValue){
+int InsertHeapArena(HeapArena* heap, PathNode insertValue){
 	if (heap->currendNodeCount >= heap->maxNodes) return -1; // heap full
 
 	
@@ -53,11 +48,11 @@ int InsertHeapArena(HeapArena* heap, int insertValue){
 		//printf("Parent value %d, Parent Index %d \n", heap -> buffer[parentIndex], parentIndex);
 		//printf("Current Value %d, Current Index %d \n", heap -> buffer[currentIndex], currentIndex);
 
-		if (heap ->buffer[parentIndex] > heap ->buffer[currentIndex])
+		if (heap ->buffer[parentIndex].f_value > heap ->buffer[currentIndex].f_value)
 		{
 			// printf(" swap \n");
 
-			int temp = heap->buffer[parentIndex];
+			PathNode temp = heap->buffer[parentIndex];
             heap->buffer[parentIndex] = heap->buffer[currentIndex];
             heap->buffer[currentIndex] = temp;
 
@@ -73,10 +68,13 @@ int InsertHeapArena(HeapArena* heap, int insertValue){
 
 
 /*pops fist element out of the Heap Arena only minheap at the moment*/
-int PopHeapArena(HeapArena* heap) {
-	if (heap->currendNodeCount ==0) return -1; //heap is empty
+PathNode PopHeapArena(HeapArena* heap) {
+	if (heap->currendNodeCount == 0) { //heap is empty
+        PathNode emptyNode = {-1, 0.0f, 0.0f, 0.0f}; // Return a default invalid node
+        return emptyNode;
+    }
 
-	int returnValue = heap->buffer[0]; // gets first element
+	PathNode returnValue = heap->buffer[0]; // gets first element
 
 	heap->buffer[0] = heap->buffer[heap->currendNodeCount - 1];
 	heap->currendNodeCount--;
@@ -88,18 +86,18 @@ int PopHeapArena(HeapArena* heap) {
 		int smallest = currentIndex;
 		
         if (leftChildIndex < heap->currendNodeCount &&     //check if left is smaller and if bottom reached
-            heap->buffer[leftChildIndex] < heap->buffer[smallest]) {
+            heap->buffer[leftChildIndex].f_value < heap->buffer[smallest].f_value) {
             smallest = leftChildIndex;
         }
 
         if (rightChildIndex < heap->currendNodeCount &&   //check if right is smaller and if bottem reached
-            heap->buffer[rightChildIndex] < heap->buffer[smallest]) {
+            heap->buffer[rightChildIndex].f_value < heap->buffer[smallest].f_value) {
             smallest = rightChildIndex;
         }
 
         if (smallest == currentIndex) break; // if no change we reached bottom
 
-        int temp = heap->buffer[currentIndex]; //swap 
+       	PathNode temp = heap->buffer[currentIndex]; //swap 
         heap->buffer[currentIndex] = heap->buffer[smallest];
         heap->buffer[smallest] = temp;
 

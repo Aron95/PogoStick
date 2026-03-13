@@ -1,3 +1,6 @@
+#ifndef GRID_H
+#define GRID_H
+
 #include <stdbool.h>
 #include "gameObject/gameObject.h"
 #include "raylib.h"
@@ -38,3 +41,5 @@ Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, b
 void DrawNavigationGrid(Grid* grid);
 void LightUpCell(Cell* cell);
 int FindNearesCellToPosition(Grid* grid, GameObject* gameObject);
+
+#endif // GRID_H

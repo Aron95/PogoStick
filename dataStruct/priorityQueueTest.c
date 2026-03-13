@@ -1,10 +1,36 @@
 #include "priorityQueue.h"
 #include <assert.h>
 #include <stdio.h>
+#include "navigation/grid.h"
 
-#define TEST_ARRAY_HEAP {1,2,3,5,6,8,9,10,13,32,43,45,46,47}
-#define TEST_ARRAY_HEAP_BUBBLE_DOWN {1,4,6,5}
-#define TEST_ARRAY_HEAP_NO_BUBBLE_DOWN {1,4,6,5}
+#define TEST_ARRAY_HEAP { \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 1.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 2.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 3.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 5.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 6.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 8.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 9.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 10.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 13.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 32.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 43.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 45.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 46.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 47.0f, .h_value = 0.0f}  \
+}
+#define TEST_ARRAY_HEAP_BUBBLE_DOWN { \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 1.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 4.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 6.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 5.0f, .h_value = 0.0f}  \
+}
+#define TEST_ARRAY_HEAP_NO_BUBBLE_DOWN { \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 1.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 4.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 6.0f, .h_value = 0.0f}, \
+    (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 5.0f, .h_value = 0.0f}  \
+}
 
 void PrintTestProtocol(char* functionName) {
 	printf("_______________ Test Protocoll: %s _______________ \n",functionName);
@@ -37,7 +63,7 @@ void TestCreateHeapArena() {
 
 /*________________________________________ Insert unit tests__________________________________________*/
 
-void AddFirstValueToHeapArena(int insertValue) {
+void AddFirstValueToHeapArena(PathNode insertValue) {
 	PrintTestProtocol("AddFirstValueToHeapArena");
 
 	HeapArena* arena = CreateHeapArena(100);
@@ -45,7 +71,7 @@ void AddFirstValueToHeapArena(int insertValue) {
 	int return_value = InsertHeapArena(arena,insertValue);
 
 	assert(return_value == 1);
-	assert(arena ->buffer[0] == 3);
+	assert(arena ->buffer[0].f_value == 3.0f);
 	assert(arena ->currendNodeCount == 1);
 
 	PrintSucess();
@@ -55,8 +81,8 @@ void AddOneMoreThanMax() {
 	PrintTestProtocol("AddOneMoreThanMax");
 	HeapArena* arena = CreateHeapArena(1);
 	
-	int return_value = InsertHeapArena(arena, 1);
-	return_value = InsertHeapArena(arena, 1);
+	int return_value = InsertHeapArena(arena, (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 1.0f, .h_value = 0.0f});
+	return_value = InsertHeapArena(arena, (PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 1.0f, .h_value = 0.0f});
 	
 	assert(return_value== -1);
 	PrintSucess();
@@ -67,14 +93,14 @@ void AddValueCheckStructureNoBubbleUp(){// biggest number in whole heap
 	
 	HeapArena* arena = CreateHeapArena(100);
 
-	int testValues [] = TEST_ARRAY_HEAP;
+	PathNode testValues [] = TEST_ARRAY_HEAP;
 	for (int i = 0; i<14;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	InsertHeapArena(arena,48);
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 48.0f, .h_value = 0.0f});
 
-	assert(arena ->buffer[14] == 48); // because in current Heap Parent is 9 no bubble up
+	assert(arena ->buffer[14].f_value == 48.0f); // because in current Heap Parent is 9 no bubble up
 
 	PrintSucess();
 }
@@ -84,14 +110,14 @@ void AddValueCheckStructureNoBubbleUp2(){// relativly small number but parent is
 	
 	HeapArena* arena = CreateHeapArena(100);
 
-	int testValues [] = TEST_ARRAY_HEAP;
+	PathNode testValues [] = TEST_ARRAY_HEAP;
 	for (int i = 0; i<14;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	InsertHeapArena(arena,14);	
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 14.0f, .h_value = 0.0f});	
 
-	assert(arena ->buffer[14] == 14); // because in current Heap Parent is 9 no bubble up
+	assert(arena ->buffer[14].f_value == 14.0f); // because in current Heap Parent is 9 no bubble up
 
 	PrintSucess();
 }
@@ -101,14 +127,14 @@ void AddValueCheckStructureNoBubbleUp3(){ // euqality
 	
 	HeapArena* arena = CreateHeapArena(100);
 
-	int testValues [] = TEST_ARRAY_HEAP;
+	PathNode testValues [] = TEST_ARRAY_HEAP;
 	for (int i = 0; i<14;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	InsertHeapArena(arena,9);	
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 9.0f, .h_value = 0.0f});	
 
-	assert(arena ->buffer[14] == 9); //equal no move
+	assert(arena ->buffer[14].f_value == 9.0f); //equal no move
 
 	PrintSucess();
 }
@@ -117,15 +143,15 @@ void AddValueCheckStructureBubbleUp(){ // one swap
 	PrintTestProtocol("AddValueCheckStructureBubbleUp");
 	HeapArena* arena = CreateHeapArena(100);
 
-	int testValues [] = TEST_ARRAY_HEAP;
+	PathNode testValues [] = TEST_ARRAY_HEAP;
 	for (int i = 0; i<14;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	InsertHeapArena(arena,8);
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 8.0f, .h_value = 0.0f});
 
-	assert(arena ->buffer[6] == 8); //swap
-	assert(arena ->buffer[14] == 9); //swap
+	assert(arena ->buffer[6].f_value == 8.0f); //swap
+	assert(arena ->buffer[14].f_value == 9.0f); //swap
 
 	PrintSucess();
 }
@@ -136,14 +162,14 @@ void AddValueCheckStructureBubbleUp2(){ // swapp to the top
 	PrintTestProtocol("AddValueCheckStructureBubbleUp");
 	HeapArena* arena = CreateHeapArena(100);
 
-	int testValues [] = TEST_ARRAY_HEAP;
+	PathNode testValues [] = TEST_ARRAY_HEAP;
 	for (int i = 0; i<14;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	InsertHeapArena(arena,0);
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 0.0f, .h_value = 0.0f});
 
-	assert(arena ->buffer[0] == 0); //swap to top 
+	assert(arena ->buffer[0].f_value == 0.0f); //swap to top 
 
 	PrintSucess();
 }
@@ -154,11 +180,11 @@ void PopFirstValueToHeapArenaOneElement(){
 	PrintTestProtocol("PopFirstValueToHeapArenaOneElement");
 
 	HeapArena* arena = CreateHeapArena(100);
-	InsertHeapArena(arena,3);
+	InsertHeapArena(arena,(PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 3.0f, .h_value = 0.0f});
 
-	int return_value = PopHeapArena(arena);
+	PathNode return_value = PopHeapArena(arena);
 
-	assert(return_value = 3);
+	assert(return_value.f_value == 3.0f);
 	assert(arena ->currendNodeCount ==0);
 
 	PrintSucess();
@@ -168,9 +194,9 @@ void PopNoElementExists(){
 	PrintTestProtocol("PopNoElementExists()");
 	HeapArena* arena = CreateHeapArena(100);
 
-	int return_value = PopHeapArena(arena);
+	PathNode return_value = PopHeapArena(arena);
 
-	assert(return_value = -1);
+	assert(return_value.cellIndex == -1);
 
 	PrintSucess();
 }
@@ -181,19 +207,19 @@ void PopValueCheckStructureBubbleDown() {
 	HeapArena* arena = CreateHeapArena(100);
 
 	
-	int testValues [] = TEST_ARRAY_HEAP_BUBBLE_DOWN;
+	PathNode testValues [] = TEST_ARRAY_HEAP_BUBBLE_DOWN;
 	for (int i = 0; i<4;i++) {
 		InsertHeapArena(arena, testValues[i]);
 	}
 
-	int return_value = PopHeapArena(arena);
+	PathNode return_value = PopHeapArena(arena);
 
 
-	assert(return_value== 1);
+	assert(return_value.f_value == 1.0f);
 
-	assert(arena -> buffer[0] == 4);
-	assert(arena -> buffer[1] == 5);
-	assert(arena -> buffer[2] == 6);
+	assert(arena -> buffer[0].f_value == 4.0f);
+	assert(arena -> buffer[1].f_value == 5.0f);
+	assert(arena -> buffer[2].f_value == 6.0f);
 
 
 	PrintSucess();
@@ -201,7 +227,7 @@ void PopValueCheckStructureBubbleDown() {
 
 int main(int argc, char **argv) {
 	TestCreateHeapArena();
-	AddFirstValueToHeapArena(3);
+	AddFirstValueToHeapArena((PathNode){.cellIndex = 0, .g_value = 0.0f, .f_value = 3.0f, .h_value = 0.0f});
 	AddOneMoreThanMax();
 	AddValueCheckStructureNoBubbleUp();
 	AddValueCheckStructureNoBubbleUp2();
