@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "gameObject/gameObject.h"
 #include "raylib.h"
-
+#include "dataStruct/priorityQueue.h"
 
 
 typedef struct {
@@ -26,9 +26,10 @@ typedef struct {
 
 typedef struct {
 	int cellIndex;
-	float g_value;
-	float f_value;
-	float h_value;
+	float gValue;
+	float fValue;
+	float hValue;
+	int parentIndex;
 } PathNode;
 
 typedef struct {
@@ -41,5 +42,7 @@ Grid* InitNavigationGrid(int width, int height, int cellWidth, int cellHeigth, b
 void DrawNavigationGrid(Grid* grid);
 void LightUpCell(Cell* cell);
 int FindNearesCellToPosition(Grid* grid, GameObject* gameObject);
+HeapArena* AStarAlgorithm(Grid* grid, int startIndex, int tragetIndex);
+HeapArena* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject);
 
 #endif // GRID_H

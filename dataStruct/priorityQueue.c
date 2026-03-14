@@ -48,7 +48,7 @@ int InsertHeapArena(HeapArena* heap, PathNode insertValue){
 		//printf("Parent value %d, Parent Index %d \n", heap -> buffer[parentIndex], parentIndex);
 		//printf("Current Value %d, Current Index %d \n", heap -> buffer[currentIndex], currentIndex);
 
-		if (heap ->buffer[parentIndex].f_value > heap ->buffer[currentIndex].f_value)
+		if (heap ->buffer[parentIndex].fValue > heap ->buffer[currentIndex].fValue)
 		{
 			// printf(" swap \n");
 
@@ -86,12 +86,12 @@ PathNode PopHeapArena(HeapArena* heap) {
 		int smallest = currentIndex;
 		
         if (leftChildIndex < heap->currendNodeCount &&     //check if left is smaller and if bottom reached
-            heap->buffer[leftChildIndex].f_value < heap->buffer[smallest].f_value) {
+            heap->buffer[leftChildIndex].fValue < heap->buffer[smallest].fValue) {
             smallest = leftChildIndex;
         }
 
         if (rightChildIndex < heap->currendNodeCount &&   //check if right is smaller and if bottem reached
-            heap->buffer[rightChildIndex].f_value < heap->buffer[smallest].f_value) {
+            heap->buffer[rightChildIndex].fValue < heap->buffer[smallest].fValue) {
             smallest = rightChildIndex;
         }
 

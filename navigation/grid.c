@@ -1,6 +1,8 @@
 #include "grid.h"
 #include "gameObject/gameObject.h"
+#include <cstddef>
 #include <dataStruct/priorityQueue.h>
+#include <stdbool.h>
 #include "globals.h"
 #include "raylib.h"
 #define RAYMATH_IMPLEMENTATION
@@ -116,22 +118,44 @@ void LightUpCell(Cell* cell){
 	DrawRectangle(cell ->position.x, cell ->position.y, cell ->height, cell ->width, RED);
 }
 
-float CalculateManhattanDistance(Vector2 start, Vector2 end){
+
+
+
+float _CalculateManhattanDistance(Vector2 start, Vector2 end){
 	return fabs(start.x - end.x) + fabs(start.y - end.y);
 }
 
 
+PathNode* _CreatePathNode(int index, int fValue,int gValue, int hValue, int parentIndex){
+	PathNode* pathNode = &(PathNode){
+		.cellIndex = index,
+		.fValue = fValue,
+		.gValue = gValue,
+		.hValue = hValue,
+		.parentIndex=parentIndex
+	};
 
-
-
+	return pathNode;
+}
 
 
 /*uses a* algorithm to calculate path to object given Vector2, works with manhattan distance and only dinstance lower 200*/
-Path* AStarAlgorithm(Grid* grid, int startIndex, int tragetIndex){
+HeapArena* AStarAlgorithm(Grid* grid, int startIndex, int tragetIndex){
 	HeapArena* openHeap = CreateHeapArena(50);
 	HeapArena* closedHeap = CreateHeapArena(50);
+	PathNode currentNode = (PathNode){.fValue=100};
+	Vector2 targetPosition = grid ->cells[tragetIndex].position;
 
-	int return_value =InsertHeapArena(openHeap, startIndex);
+	//TODO Rework that it can be configured what grid types are existing.
+	int relativeTopBottom = grid ->width/grid->cellWidth; // to get in a Column Major Order the Element right in top of cartesian coordination system we ne to move the index 1 full row element count.
+	int relativPositions [4] = {1,-1,relativeTopBottom,-relativeTopBottom};
+	
+	
+	float currentDistance = _CalculateManhattanDistance(grid->cells[startIndex].position, grid ->cells[tragetIndex].position);
+	
+	PathNode startingNode = *_CreatePathNode(startIndex, currentDistance+0 , currentDistance, 0, 0);
+	int return_value =InsertHeapArena(openHeap, startingNode);
+
 
 	if (return_value == -1 ) {
 		printf(" inserting value: %d into heap arena failed\n", startIndex);
@@ -139,26 +163,51 @@ Path* AStarAlgorithm(Grid* grid, int startIndex, int tragetIndex){
 		return NULL;
 	}
 
+	while (openHeap ->currendNodeCount > 0) {
+		currentNode = PopHeapArena(openHeap);
+
+		if (currentNode.cellIndex == tragetIndex){
+			InsertHeapArena(closedHeap, currentNode);
+			return closedHeap;
+		}
 
 
+		InsertHeapArena(closedHeap, currentNode);
+		for (int i =0;i <4;i++){
+			bool skip = false;
+			int neighborIndex = currentNode.cellIndex + relativPositions[i];
 
+			for (int j =0; j< closedHeap ->currendNodeCount;j++){
+				if (neighborIndex == closedHeap->buffer[j].cellIndex) {
+					skip =true;
+					continue;
+				}
+			}
 
+			if (skip) continue;;
+
+			float currentG = currentNode.gValue + 1.0f;
+
+			int hValue = _CalculateManhattanDistance(grid ->cells[neighborIndex].position, targetPosition);
+
+			PathNode*  neighborNode = _CreatePathNode(neighborIndex, currentG+hValue ,currentG, hValue, currentNode.cellIndex);
+
+		
+			InsertHeapArena(openHeap, *neighborNode);
+		}
+		
+	}
+
+	return closedHeap;
 }
 
 
-Path* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject){
-	Path* path = malloc(sizeof(Path));
+HeapArena* BuildPathToPlayer(Grid* grid, GameObject* sourceGameObject){
 	GameObject* player = playerGlobalpt;
 	int sourceCellIndex = FindNearesCellToPosition(grid,sourceGameObject);
 	int sinkCellIndex = FindNearesCellToPosition(grid,player);
-	
-	int rowLength = grid ->width / grid ->cellWidth;
-	int relativeTopBottom = grid ->width/grid->cellWidth; // to get in a Column Major Order the Element right in top of cartesian coordination system we ne to move the index 1 full row element count.
 
-	int relativPositions [4] = {1,-1,relativeTopBottom,-relativeTopBottom};
-	
-
-	return AStarAlgorithm(grid);
+	return AStarAlgorithm(grid, sourceCellIndex, sinkCellIndex);
 }
 
 
